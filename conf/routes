@@ -1,0 +1,29 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# An example controller showing a sample home page
+GET     /                           controllers.HomeController.index
+# An example controller showing how to use dependency injection
+GET     /count                      controllers.CountController.count
+# An example controller showing how to write asynchronous code
+GET     /message                    controllers.AsyncController.message
+
+# Path for equipment client connections
+GET     /client/                    controllers.ClientRegController.index
+# Client ping page
+#GET    /client/:id                 controllers.ClientRegController.get(id: Long, action: Option[String])
+# Client registration
+#POST   /client/:id                 controllers.ClientRegController.post(id: Long, authToken: String)
+# Client administrator authentication
+POST   /client/adminauth             controllers.ClientRegController.adminAuth()
+# Client administrator creation
+POST   /client/register              controllers.ClientRegController.registerNew()
+# Client administrator creation
+DELETE /client/register              controllers.ClientRegController.unregister(login)
+# Client administrator first registration
+POST   /client/finishreg             controllers.ClientRegController.finishReg()
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
