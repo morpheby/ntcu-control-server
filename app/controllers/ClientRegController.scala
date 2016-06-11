@@ -27,7 +27,6 @@ class ClientRegController @Inject()(actorSystem: ActorSystem,
                                    (implicit exec: ExecutionContext) extends Controller {
 
   case class AuthData(login: String, password: Option[String], otp: Option[Int])
-//  case class AuthDataReg(login: String, password: String)
 
   implicit val authDataFormat = Json.reads[AuthData]
 
