@@ -24,7 +24,7 @@ class Module extends AbstractModule {
     // Set AtomicCounter as the implementation for Counter.
     bind(classOf[Counter]).to(classOf[AtomicCounter])
 
-    bind(classOf[CredentialsService]).to(classOf[DbCredentialService])
+    bind(classOf[AdminCredentialsService]).to(classOf[DbAdminCredentialService])
   }
 
 }

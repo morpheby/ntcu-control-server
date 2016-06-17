@@ -7,7 +7,7 @@ package controllers
 import akka.actor.ActorSystem
 import javax.inject._
 
-import actions.AuthAction
+import actions.AdminAuthAction
 import play.api._
 import play.api.mvc._
 import services._
@@ -17,13 +17,15 @@ import scala.concurrent.duration._
 import play.api.libs.functional._
 import play.api.libs.json._
 
+//import services.AdminAuthExceptions._
+
 
 /**
   * Created by morpheby on 24.5.16.
   */
 @Singleton
 class ClientRegController @Inject()(actorSystem: ActorSystem,
-                                    authAction: AuthAction, credentialService: CredentialsService)
+                                    authAction: AdminAuthAction, credentialService: AdminCredentialsService)
                                    (implicit exec: ExecutionContext) extends Controller {
 
   case class AuthData(login: String, password: Option[String], otp: Option[Int])
@@ -38,9 +40,10 @@ class ClientRegController @Inject()(actorSystem: ActorSystem,
 
   def authFilterRecover(block: (Throwable) => Result): PartialFunction[Throwable, Result] = {
     {
-      case e@(InvalidAuthException() | AuthenticationException() |
-              InvalidOperationException(_) | InvalidInputException()) => block(e)
-      case e@(SessionExpired()) => block(e).withNewSession
+      case e@(InvalidAuthException() | AdminAuthExceptions.AdminAuthenticationException() |
+              AdminAuthExceptions.InvalidOperationException(_) |
+              AdminAuthExceptions.InvalidInputException()) => block(e)
+      case e@(AdminAuthExceptions.SessionExpired()) => block(e).withNewSession
     }
   }
 

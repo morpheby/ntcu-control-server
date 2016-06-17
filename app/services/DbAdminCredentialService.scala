@@ -15,18 +15,15 @@ import play.api.cache.{CacheApi, _}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 import scala.concurrent.duration._
-
-case class InvalidOperationException(message: String) extends Exception(s"Invalid operation was attempted: ${message}")
-case class InvalidInputException() extends Exception("Input data is invalid")
-case class SessionExpired() extends Exception("Session expired")
+import services.AdminAuthExceptions._
 
 /**
   * Created by morpheby on 28.5.16.
   */
 @Singleton
-class DbCredentialService @Inject() (@NamedCache("session-cache") sessionCache: CacheApi)
-                                    (userDao: UserDAO)
-                                    (implicit exec: ExecutionContext) extends CredentialsService {
+class DbAdminCredentialService @Inject()(@NamedCache("session-cache") sessionCache: CacheApi)
+                                        (userDao: UserDAO)
+                                        (implicit exec: ExecutionContext) extends AdminCredentialsService {
     val gAuth = new GoogleAuthenticator()
     val checkAuthCookieKey = "controlCredentials"
 
@@ -39,7 +36,7 @@ class DbCredentialService @Inject() (@NamedCache("session-cache") sessionCache: 
               val user = User(name, password, None)
               userDao.insert(user).map(_ => user)
             } getOrElse {
-              throw AuthenticationException()
+              throw AdminAuthenticationException()
             }
           }
         case Some(user @ User(_, None, None)) =>
@@ -68,10 +65,10 @@ class DbCredentialService @Inject() (@NamedCache("session-cache") sessionCache: 
             sessionCache.set(sessionKey, user.name, 15.minutes)
             Future.successful(sessionKey)
           } else {
-            Future.failed(AuthenticationException())
+            Future.failed(AdminAuthenticationException())
           }
         case None =>
-          Future.failed(AuthenticationException())
+          Future.failed(AdminAuthenticationException())
         case _ =>
           Future.failed(InvalidInputException())
       }
@@ -101,12 +98,12 @@ class DbCredentialService @Inject() (@NamedCache("session-cache") sessionCache: 
             val newUser = User(user.name, user.passwordHash, Some(key.getKey))
             userDao.update(newUser).map(_ => url)
           } else {
-            Future.failed(AuthenticationException())
+            Future.failed(AdminAuthenticationException())
           }
         case Some(User(_, _, Some(_))) =>
           Future.failed(InvalidOperationException("User already finished registration"))
         case None =>
-          Future.failed(AuthenticationException())
+          Future.failed(AdminAuthenticationException())
         case _ =>
           Future.failed(InvalidInputException())
       }
