@@ -56,7 +56,7 @@ class DummyAdminCredentialService @Inject()(@NamedCache("session-cache") session
 
   val checkAuthCookieKey = "dummyCredToken"
 
-  def createAdmin(name: String, password: String): Future[User] = {
+  def createAdmin(name: String, password: Option[String], authKey: Option[String]): Future[User] = {
     Future {
       dummy
     }
@@ -74,15 +74,17 @@ class DummyAdminCredentialService @Inject()(@NamedCache("session-cache") session
     }
   }
 
-  def checkAuth(authKey: String): Option[User] = {
-    sessionCache.get[String](authKey).flatMap {name =>
-      if(dummy.name == name) {
-        sessionCache.set(authKey, name, 15.minutes)
-        Some(dummy)
-      } else {
-        None
+  def checkAuth(authKey: String): Future[Option[User]] = {
+    Future.successful(
+      sessionCache.get[String](authKey).flatMap {name =>
+        if(dummy.name == name) {
+          sessionCache.set(authKey, name, 15.minutes)
+          Some(dummy)
+        } else {
+          None
+        }
       }
-    }
+    )
   }
 
   def finishRegistration(name: String, password: String): Future[String] = {
@@ -97,7 +99,7 @@ class DummyAdminCredentialService @Inject()(@NamedCache("session-cache") session
 
 
   def deleteAdmin(name: String): Future[Unit] = {
-    Future.successful()
+    Future.successful(Unit)
   }
 
 }
